@@ -153,7 +153,20 @@ are isomorpic -/
 appropriately) are isomorpic"]
 noncomputable def equivPresentedMonoid (rel : FreeMonoid β → FreeMonoid β → Prop) :
     PresentedMonoid rel ≃* PresentedMonoid (FreeMonoid.comap_rel e rel) :=
-  (Con.comapQuotientEquivOfSurj _ _ (EquivLike.surjective (FreeMonoid.congr_iso e))).symm.trans <|
+  (Con.comapQuotientEquivOfSurj _ _ (FreeMonoid.congr_iso e).surjective).symm.trans <|
   Con.congr (Con.comap_conGen_of_Bijective (FreeMonoid.congr_iso e) (MulEquiv.bijective _) _ rel)
+
+--set_option pp.explicit true
+theorem equivPresentedMonoid_apply_of (rel : FreeMonoid β → FreeMonoid β → Prop) (x : α) :
+    equivPresentedMonoid e rel (of rel $ e x) = of (FreeMonoid.comap_rel e rel) x := by
+  unfold equivPresentedMonoid PresentedMonoid.of
+  simp
+  --restate this for presented monoids and make it simp
+  have := Con.comapQuotientEquivOfSurj_symm_mk' (conGen rel) (FreeMonoid.congr_iso e) (FreeMonoid.of x)
+  simp at this
+  unfold PresentedMonoid
+  erw [this]
+  erw [Con.congr_mk]
+  rfl
 
 end Isomorphism

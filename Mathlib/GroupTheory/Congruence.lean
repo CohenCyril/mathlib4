@@ -402,6 +402,9 @@ protected def congr {c d : Con M} (h : c = d) : c.Quotient ≃* d.Quotient :=
 #align con.congr Con.congr
 #align add_con.congr AddCon.congr
 
+@[simp] theorem congr_mk {c d : Con M} (h : c = d) (a : M) :
+    Con.congr h (a : c.Quotient) = (a : d.Quotient) := rfl
+
 -- The complete lattice of congruence relations on a type
 /-- For congruence relations `c, d` on a type `M` with a multiplication, `c ≤ d` iff `∀ x y ∈ M`,
     `x` is related to `y` by `d` if `x` is related to `y` by `c`. -/
@@ -1164,6 +1167,22 @@ noncomputable def comapQuotientEquivOfSurj(c : Con M) (f : N →* M) (hf : Funct
     (Con.comap f f.map_mul c).Quotient ≃* c.Quotient :=
   (Con.congr Con.comap_eq).trans <| Con.quotientKerEquivOfSurjective
   (c.mk'.comp f) <| Con.mk'_surjective.comp hf
+
+@[simp]
+lemma comapQuotientEquivOfSurj_mk (c : Con M) {f : N →* M} (hf : Function.Surjective f) (x : N) :
+    comapQuotientEquivOfSurj c f hf x = f x :=
+  rfl
+
+@[simp]
+lemma comapQuotientEquivOfSurj_symm_mk (c : Con M) {f : N →* M} (hf : Function.Surjective f) (x : N) :
+    (comapQuotientEquivOfSurj c f hf).symm (f x) = x := by
+  sorry
+
+@[simp]
+lemma comapQuotientEquivOfSurj_symm_mk' (c : Con M) (f : N ≃* M) (x : N) :
+    (comapQuotientEquivOfSurj c f f.surjective).symm (@Quotient.mk M c.toSetoid (f x)) = x := by
+  sorry
+
 
 /-- The **second isomorphism theorem for monoids**. -/
 @[to_additive "The second isomorphism theorem for `AddMonoid`s."]
