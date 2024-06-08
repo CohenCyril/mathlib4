@@ -52,7 +52,3 @@ function and proving it is linear.
 linear algebra, vector space, module
 
 -/
-
-#align linear_equiv.map_sum map_sumₓ
-#align linear_equiv.map_neg map_negₓ
-#align linear_equiv.map_sub map_subₓ
