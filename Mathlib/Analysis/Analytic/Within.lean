@@ -123,10 +123,11 @@ lemma analyticWithinAt_of_eq_bot {f : E → F} {s : Set E} {x : E} (h : 𝓝[s] 
     r_pos := by positivity
     hasSum := by
       intro y ys yr
-      contrapose ys
-      refine st (rt ?_)
-      simpa only [Metric.mem_ball, dist_self_add_left, Metric.emetric_ball,
-        dist_zero_right] using yr
+      have : x + y ∈ sᶜ := by
+        refine st (rt ?_)
+        simpa only [Metric.mem_ball, dist_self_add_left, Metric.emetric_ball,
+          dist_zero_right] using yr
+      exact (this ys).elim
     continuousWithinAt := fc
   }⟩
 
@@ -212,15 +213,15 @@ lemma hasFPowerSeriesWithinOnBall_iff_exists_hasFPowerSeriesOnBall [CompleteSpac
       simp only [EMetric.mem_ball, edist_eq_coe_nnnorm_sub] at yb
       have e0 := p.hasSum (x := y - x) ?_
       have e1 := (h.hasSum (y := y - x) ?_ ?_)
-      · simp only [add_sub_cancel'_right] at e1
+      · simp only [add_sub_cancel] at e1
         exact e1.unique e0
-      · simpa only [add_sub_cancel'_right]
+      · simpa only [add_sub_cancel]
       · simpa only [EMetric.mem_ball, edist_eq_coe_nnnorm]
       · simp only [EMetric.mem_ball, edist_eq_coe_nnnorm]
         exact lt_of_lt_of_le yb h.r_le
     · refine ⟨h.r_le, h.r_pos, ?_⟩
       intro y lt
-      simp only [add_sub_cancel']
+      simp only [add_sub_cancel_left]
       apply p.hasSum
       simp only [EMetric.mem_ball] at lt ⊢
       exact lt_of_lt_of_le lt h.r_le
@@ -230,7 +231,7 @@ lemma hasFPowerSeriesWithinOnBall_iff_exists_hasFPowerSeriesOnBall [CompleteSpac
     rw [hfg]
     · exact hg.hasSum lt
     · refine ⟨ys, ?_⟩
-      simpa only [EMetric.mem_ball, edist_eq_coe_nnnorm_sub, add_sub_cancel', sub_zero] using lt
+      simpa only [EMetric.mem_ball, edist_eq_coe_nnnorm_sub, add_sub_cancel_left, sub_zero] using lt
 
 /-- `f` has power series `p` at `x` iff some local extension of `f` has that series -/
 lemma hasFPowerSeriesWithinAt_iff_exists_hasFPowerSeriesAt [CompleteSpace F] {f : E → F}
