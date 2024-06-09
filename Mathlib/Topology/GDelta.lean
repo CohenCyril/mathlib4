@@ -111,7 +111,7 @@ protected theorem IsGδ.iInter [Countable ι'] {s : ι' → Set X} (hs : ∀ i, 
     IsGδ (⋂ i, s i) := by
   choose T hTo hTc hTs using hs
   obtain rfl : s = fun i => ⋂₀ T i := funext hTs
-  refine' ⟨⋃ i, T i, _, countable_iUnion hTc, (sInter_iUnion _).symm⟩
+  refine ⟨⋃ i, T i, ?_, countable_iUnion hTc, (sInter_iUnion _).symm⟩
   simpa [@forall_swap ι'] using hTo
 #align is_Gδ_Inter IsGδ.iInter
 
@@ -131,8 +131,7 @@ theorem IsGδ.sInter {S : Set (Set X)} (h : ∀ s ∈ S, IsGδ s) (hS : S.Counta
   simpa only [sInter_eq_biInter] using IsGδ.biInter hS h
 #align is_Gδ_sInter IsGδ.sInter
 
-@[deprecated] -- 2024-02-15
-alias isGδ_sInter := IsGδ.sInter
+@[deprecated (since := "2024-02-15")] alias isGδ_sInter := IsGδ.sInter
 
 theorem IsGδ.inter {s t : Set X} (hs : IsGδ s) (ht : IsGδ t) : IsGδ (s ∩ t) := by
   rw [inter_eq_iInter]
@@ -154,7 +153,7 @@ theorem IsGδ.sUnion {S : Set (Set X)} (hS : S.Finite) (h : ∀ s ∈ S, IsGδ s
   induction S, hS using Set.Finite.dinduction_on with
   | H0 => simp
   | H1 _ _ ih =>
-    simp only [ball_insert_iff, sUnion_insert] at *
+    simp only [forall_mem_insert, sUnion_insert] at *
     exact h.1.union (ih h.2)
 
 /-- The union of finitely many Gδ sets is a Gδ set, bounded indexed union version. -/
@@ -164,7 +163,7 @@ theorem IsGδ.biUnion {s : Set ι} (hs : s.Finite) {f : ι → Set X} (h : ∀ i
   exact .sUnion (hs.image _) (forall_mem_image.2 h)
 #align is_Gδ_bUnion IsGδ.biUnion
 
-@[deprecated] -- 2024-02-15
+@[deprecated (since := "2024-02-15")]
 alias isGδ_biUnion := IsGδ.biUnion
 
 /-- The union of finitely many Gδ sets is a Gδ set, bounded indexed union version. -/
@@ -296,7 +295,7 @@ lemma IsClosed.isNowhereDense_iff {s : Set X} (hs : IsClosed s) :
     IsNowhereDense s ↔ interior s = ∅ := by
   rw [IsNowhereDense, IsClosed.closure_eq hs]
 
-/-- If a set `s` is nowhere dense, so is its closure.-/
+/-- If a set `s` is nowhere dense, so is its closure. -/
 protected lemma IsNowhereDense.closure {s : Set X} (hs : IsNowhereDense s) :
     IsNowhereDense (closure s) := by
   rwa [IsNowhereDense, closure_closure]
@@ -326,7 +325,7 @@ lemma IsMeagre.mono {s t : Set X} (hs : IsMeagre s) (hts: t ⊆ s) : IsMeagre t 
 
 /-- An intersection with a meagre set is meagre. -/
 lemma IsMeagre.inter {s t : Set X} (hs : IsMeagre s) : IsMeagre (s ∩ t) :=
-  hs.mono (inter_subset_left s t)
+  hs.mono inter_subset_left
 
 /-- A countable union of meagre sets is meagre. -/
 lemma isMeagre_iUnion {s : ℕ → Set X} (hs : ∀ n, IsMeagre (s n)) : IsMeagre (⋃ n, s n) := by
