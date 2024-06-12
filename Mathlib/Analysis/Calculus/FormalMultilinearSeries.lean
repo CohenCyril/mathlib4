@@ -362,7 +362,8 @@ theorem constFormalMultilinearSeries_apply [NontriviallyNormedField 𝕜] [Norme
   Nat.casesOn n (fun hn => (hn rfl).elim) (fun _ _ => rfl) hn
 #align const_formal_multilinear_series_apply constFormalMultilinearSeries_apply
 
-@[simp] lemma constFormalMultilinearSeries_zero [NontriviallyNormedField 𝕜] [NormedAddCommGroup E ]
+@[simp]
+lemma constFormalMultilinearSeries_zero [NontriviallyNormedField 𝕜] [NormedAddCommGroup E ]
     [NormedAddCommGroup F] [NormedSpace 𝕜 E] [NormedSpace 𝕜 F] :
     constFormalMultilinearSeries 𝕜 E (0 : F) = 0 := by
   ext n x
