@@ -19,7 +19,7 @@ to the function at that set:
     `f` is continuous within `s` at `x`.
 2. `AnalyticWithinOn 𝕜 f s t` means `∀ x ∈ t, AnalyticWithinAt 𝕜 f s x`.
 
-This means that there is an extention of `f` which is analytic and agrees with `f` on `s ∪ {x}`, but
+This means there exists an extension of `f` which is analytic and agrees with `f` on `s ∪ {x}`, but
 `f` is allowed to be arbitrary elsewhere.  Requiring `ContinuousWithinAt` is essential if `x ∉ s`:
 it is required for composition and smoothness to follow without extra hypotheses (we could
 alternately require convergence at `x` even if `x ∉ s`).
