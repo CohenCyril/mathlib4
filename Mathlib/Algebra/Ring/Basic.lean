@@ -149,7 +149,7 @@ section NoZeroDivisors
 
 variable (α)
 
-lemma IsLeftCancelMulZero.to_noZeroDivisors [Ring α] [IsLeftCancelMulZero α] :
+lemma IsLeftCancelMulZero.to_noZeroDivisors [NonUnitalRing α] [IsLeftCancelMulZero α] :
     NoZeroDivisors α :=
   { eq_zero_or_eq_zero_of_mul_eq_zero := fun {x y} h ↦ by
       by_cases hx : x = 0
@@ -161,7 +161,7 @@ lemma IsLeftCancelMulZero.to_noZeroDivisors [Ring α] [IsLeftCancelMulZero α] :
         rwa [sub_zero] at this } }
 #align is_left_cancel_mul_zero.to_no_zero_divisors IsLeftCancelMulZero.to_noZeroDivisors
 
-lemma IsRightCancelMulZero.to_noZeroDivisors [Ring α] [IsRightCancelMulZero α] :
+lemma IsRightCancelMulZero.to_noZeroDivisors [NonUnitalRing α] [IsRightCancelMulZero α] :
     NoZeroDivisors α :=
   { eq_zero_or_eq_zero_of_mul_eq_zero := fun {x y} h ↦ by
       by_cases hy : y = 0
@@ -173,7 +173,7 @@ lemma IsRightCancelMulZero.to_noZeroDivisors [Ring α] [IsRightCancelMulZero α]
         rwa [sub_zero] at this } }
 #align is_right_cancel_mul_zero.to_no_zero_divisors IsRightCancelMulZero.to_noZeroDivisors
 
-instance (priority := 100) NoZeroDivisors.to_isCancelMulZero [Ring α] [NoZeroDivisors α] :
+instance (priority := 100) NoZeroDivisors.to_isCancelMulZero [NonUnitalRing α] [NoZeroDivisors α] :
     IsCancelMulZero α :=
   { mul_left_cancel_of_ne_zero := fun ha h ↦ by
       rw [← sub_eq_zero, ← mul_sub] at h

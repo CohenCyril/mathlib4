@@ -3,6 +3,7 @@ Copyright (c) 2019 Johannes Hölzl. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Johannes Hölzl, Patrick Massot, Casper Putz, Anne Baanen
 -/
+import Mathlib.Algebra.Ring.Regular
 import Mathlib.Algebra.Star.Order
 import Mathlib.Data.Matrix.Basic
 import Mathlib.LinearAlgebra.StdBasis
@@ -175,16 +176,13 @@ lemma vecMul_self_mul_conjTranspose_eq_zero (A : Matrix m n R) (v : m → R) :
     v ᵥ* (A * Aᴴ) = 0 ↔ v ᵥ* A = 0 := by
   simpa only [conjTranspose_conjTranspose] using vecMul_conjTranspose_mul_self_eq_zero Aᴴ _
 
-end StarOrderedRing
-
-section Field
-
-variable [PartialOrder R] [Ring R] [StarRing R] [StarOrderedRing R] [IsCancelMul R]
-
 /-- Note that this applies to `ℂ` via `Complex.strictOrderedCommRing`. -/
 @[simp]
-theorem dotProduct_star_self_pos_iff [Nontrivial R] {v : n → R} :
+theorem dotProduct_star_self_pos_iff {v : n → R} :
     0 < dotProduct (star v) v ↔ v ≠ 0 := by
+  cases subsingleton_or_nontrivial R
+  · obtain rfl : v = 0 := Subsingleton.elim _ _
+    simp
   refine (Fintype.sum_pos_iff_of_nonneg fun i => star_mul_self_nonneg _).trans ?_
   simp_rw [Pi.lt_def, Function.ne_iff, Pi.zero_apply]
   refine (and_iff_right fun i => star_mul_self_nonneg (v i)).trans <| exists_congr fun i => ?_
@@ -198,7 +196,7 @@ theorem dotProduct_star_self_pos_iff [Nontrivial R] {v : n → R} :
 theorem dotProduct_self_star_pos_iff {v : n → R} : 0 < dotProduct v (star v) ↔ v ≠ 0 := by
   simpa using dotProduct_star_self_pos_iff (v := star v)
 
-end Field
+end StarOrderedRing
 
 end Self
 

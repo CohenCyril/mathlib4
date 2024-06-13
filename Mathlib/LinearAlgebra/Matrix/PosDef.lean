@@ -326,6 +326,11 @@ protected theorem one [DecidableEq n] : PosDef (1 : Matrix n n R) :=
     simp only [one_mulVec]
     rw [star_dotProduct]⟩
 
+protected theorem natCast [DecidableEq n] : PosDef (d : Matrix n n R) :=
+  ⟨isHermitian_one, fun x hx => by
+    simp only [one_mulVec]
+    rw [star_dotProduct]⟩
+
 theorem of_toQuadraticForm' [DecidableEq n] {M : Matrix n n ℝ} (hM : M.IsSymm)
     (hMq : M.toQuadraticForm'.PosDef) : M.PosDef := by
   refine ⟨hM, fun x hx => ?_⟩
