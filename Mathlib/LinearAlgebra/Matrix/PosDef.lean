@@ -321,16 +321,14 @@ theorem transpose {M : Matrix n n R} (hM : M.PosDef) : Mᵀ.PosDef := by
   rw [mulVec_transpose, Matrix.dotProduct_mulVec, star_star, dotProduct_comm]
 #align matrix.pos_def.transpose Matrix.PosDef.transpose
 
-protected theorem one [DecidableEq n] : PosDef (1 : Matrix n n R) :=
-  ⟨isHermitian_one, fun x hx => by
-    simp only [one_mulVec]
-    rw [star_dotProduct]⟩
+protected theorem one [DecidableEq n] [NoZeroDivisors R]: PosDef (1 : Matrix n n R) :=
+  ⟨isHermitian_one, fun x hx => by simpa only [one_mulVec, dotProduct_star_self_pos_iff]⟩
 
-protected theorem natCast [DecidableEq n] : PosDef (d : Matrix n n R) :=
-  ⟨isHermitian_one, fun x hx => by
-    simp only [one_mulVec]
+protected theorem natCast [DecidableEq n] (d : ℕ) : PosDef (d : Matrix n n R) :=
+  ⟨isHermitian_nat, fun x hx => by
+    simp only [natCast_mulVec]
     rw [star_dotProduct]⟩
-
+#exit
 theorem of_toQuadraticForm' [DecidableEq n] {M : Matrix n n ℝ} (hM : M.IsSymm)
     (hMq : M.toQuadraticForm'.PosDef) : M.PosDef := by
   refine ⟨hM, fun x hx => ?_⟩

@@ -240,6 +240,10 @@ theorem isHermitian_one [DecidableEq n] : (1 : Matrix n n α).IsHermitian :=
   conjTranspose_one
 #align matrix.is_hermitian_one Matrix.isHermitian_one
 
+@[simp]
+theorem isHermitian_natCast [DecidableEq n] (d : ℕ) : (d : Matrix n n α).IsHermitian :=
+  conjTranspose_natCast
+
 theorem IsHermitian.pow [Fintype n] [DecidableEq n] {A : Matrix n n α} (h : A.IsHermitian) (k : ℕ) :
     (A ^ k).IsHermitian := IsSelfAdjoint.pow h _
 
