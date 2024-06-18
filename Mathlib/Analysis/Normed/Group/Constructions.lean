@@ -10,12 +10,13 @@ import Mathlib.Analysis.Normed.Group.Basic
 /-!
 # Product of normed groups and other constructions
 
-This file
+This file constructs the infinity norm on finite products of normed groups and provides instances
+for type synonyms.
 -/
 
 open NNReal
 
-variable {ι E F : Type*}
+variable {ι E F : Type*} {π : ι → Type*}
 
 /-! ### `PUnit` -/
 
@@ -231,14 +232,12 @@ instance (priority := 100) seminormedGroup [SeminormedGroup E] : SeminormedGroup
 
 -- See note [lower instance priority]
 @[to_additive]
-instance (priority := 100) seminormedCommGroup [SeminormedCommGroup E] :
-    SeminormedCommGroup Eᵒᵈ :=
+instance (priority := 100) seminormedCommGroup [SeminormedCommGroup E] : SeminormedCommGroup Eᵒᵈ :=
   ‹SeminormedCommGroup E›
 
 -- See note [lower instance priority]
 @[to_additive]
-instance (priority := 100) normedGroup [NormedGroup E] : NormedGroup Eᵒᵈ :=
-  ‹NormedGroup E›
+instance (priority := 100) normedGroup [NormedGroup E] : NormedGroup Eᵒᵈ := ‹NormedGroup E›
 
 -- See note [lower instance priority]
 @[to_additive]
@@ -312,7 +311,7 @@ end Prod
 /-! ### Finite product of normed groups -/
 
 section Pi
-variable {π : ι → Type*} [Fintype ι]
+variable [Fintype ι]
 
 section SeminormedGroup
 variable [∀ i, SeminormedGroup (π i)] [SeminormedGroup E] (f : ∀ i, π i) {x : ∀ i, π i} {r : ℝ}
