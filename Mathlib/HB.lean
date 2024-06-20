@@ -1,3 +1,4 @@
+import Lean
 import Mathlib.Algebra.Group.Basic
 import Mathlib.Algebra.Ring.Basic
 
@@ -8,7 +9,7 @@ import Mathlib.Algebra.Ring.Basic
 #print Mul
 
 
--- macro "mixin": command =>  `(command|class X)
+
 -- namespace valuable_stuff
 
 --   universe u
@@ -135,6 +136,37 @@ namespace hb_stuff
 
 end hb_stuff
 
+open Lean.Parser.Term
+open Lean.Parser.Command
+
+syntax (name := mixin) "mixin" declId
+  ppIndent((ppSpace bracketedBinder)* «extends»? optType)
+  ((" := " <|> " where ") (structCtor)? structFields)? optDeriving  : command
+
+-- THIS WORKED
+-- macro_rules | `(mixin $id:declId $binders* $[$«extends»]? $[: $ty]? $[$ceorwhere $[$K]? $fields]? $der) => `(class $id $binders* $[$«extends»]? $[: $ty]? $[where $[$K]?$fields:structFields]? $der)
+
+macro_rules | `(mixin $id:declId $binders* $[$«extends»]? $[: $ty]? $[$ceorwhere $[$K]? $fields*]? $der) => do
+  let fields ← fields.mapM fun fields ↦ do
+    fields.mapM fun field ↦ do
+      return (⟨field.raw ⟩ : Lean.TSyntax `Lean.Parser.Command.structExplicitBinder)
+  `(class $id $binders* $[$«extends»]? $[: $ty]? $[where $[$K]?$[$fields]*]? $der)
+
+
+-- structFields =
+-- manyIndent <|
+--     ppLine >> checkColGe >> ppGroup (
+--       structExplicitBinder <|> structImplicitBinder <|>
+--       structInstBinder <|> structSimpleBinder)
+--  := leading_parser
+--     (structureTk <|> classTk) >>
+--     -- Note: no error recovery here due to clashing with the `class abbrev` syntax
+--     declId >>
+--     ppIndent (many (ppSpace >> Term.bracketedBinder) >> optional «extends» >> Term.optType) >>
+--     optional ((symbol " := " <|> " where ") >> optional structCtor >> structFields) >>
+--     optDeriving
+
+-- macro "mixin": command =>  `(command|class )
 namespace pretend_hb
   universe u
   -- class
