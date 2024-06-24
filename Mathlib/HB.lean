@@ -10,35 +10,35 @@ import Mathlib.Algebra.Ring.Basic
 
 
 
--- namespace valuable_stuff
+namespace valuable_stuff
 
---   universe u
+  universe u
 
 
---   class Mul (α : Type u) where
---     /-- `a ⬝ b` computes the product of `a` and `b`. See `HMul`. -/
---     mul : α → α → α
+  class Mul (α : Type u) where
+    /-- `a ⬝ b` computes the product of `a` and `b`. See `HMul`. -/
+    mul : α → α → α
 
---   -- macro_rules | `($x ⬝ $y)   => `(binop% Mul $x $y)
---   infixl:70 " ⬝ "   => Mul.mul
+  -- macro_rules | `($x ⬝ $y)   => `(binop% Mul $x $y)
+  infixl:70 " ⬝ "   => Mul.mul
 
---   @[ext]
---   class Semigroup (G : Type u) extends Mul G where
---     /-- Multiplication is associative -/
---     protected mul_assoc : ∀ a b c : G, (a ⬝ b) ⬝ c = a ⬝ (b ⬝ c)
+  @[ext]
+  class Semigroup (G : Type u) extends Mul G where
+    /-- Multiplication is associative -/
+    protected mul_assoc : ∀ a b c : G, (a ⬝ b) ⬝ c = a ⬝ (b ⬝ c)
 
---   class One (α : Type u) where one : α
+  class One (α : Type u) where one : α
 
---   notation "𝟙" => One.one
+  notation "𝟙" => One.one
 
---   class MulOneClass (M : Type u) extends One M, Mul M where
---     /-- One is a left neutral element for multiplication -/
---     protected one_mul : ∀ a : M, one ⬝ a = a
---     /-- One is a right neutral element for multiplication -/
---     protected mul_one : ∀ a : M, a ⬝ one = a
+  class MulOneClass (M : Type u) extends One M, Mul M where
+    /-- One is a left neutral element for multiplication -/
+    protected one_mul : ∀ a : M, one ⬝ a = a
+    /-- One is a right neutral element for multiplication -/
+    protected mul_one : ∀ a : M, a ⬝ one = a
 
---   class Monoid (M : Type u) extends Semigroup M, MulOneClass M where
--- end valuable_stuff
+  class Monoid (M : Type u) extends Semigroup M, MulOneClass M where
+end valuable_stuff
 
 namespace hb_stuff
 
@@ -58,6 +58,10 @@ namespace hb_stuff
   -- should be Mul.mul
   def mul {α : Type u} [Mul α] := MulOfBottom.mul (α := α)
   -- macro_rules | `($x ⬝ $y)   => `(binop% Mul $x $y)
+
+  structure MulType where
+    sort : Type u
+    classof : Mul sort
 
   -- loop
   instance (α : Type u) [Bottom α] [MulOfBottom α] : Mul α where
@@ -146,12 +150,40 @@ syntax (name := mixin) "mixin" declId
 -- THIS WORKED
 -- macro_rules | `(mixin $id:declId $binders* $[$«extends»]? $[: $ty]? $[$ceorwhere $[$K]? $fields]? $der) => `(class $id $binders* $[$«extends»]? $[: $ty]? $[where $[$K]?$fields:structFields]? $der)
 
-macro_rules | `(mixin $id:declId $binders* $[$«extends»]? $[: $ty]? $[$ceorwhere $[$K]? $fields*]? $der) => do
-  let fields ← fields.mapM fun fields ↦ do
-    fields.mapM fun field ↦ do
-      return (⟨field.raw ⟩ : Lean.TSyntax `Lean.Parser.Command.structExplicitBinder)
-  `(class $id $binders* $[$«extends»]? $[: $ty]? $[where $[$K]?$[$fields]*]? $der)
+macro_rules | `(mixin $id:declId $binders* $[$«extends»]? $[: $ty]? $[$ceorwhere $[$K]? $fields:structSimpleBinder*]? $der) => do
+  -- let fields ← fields.mapM fun fields ↦ do
+  --   fields.mapM fun field ↦ do
 
+      -- let x := field.raw[0]
+      -- dbg_trace x
+      -- let y  := `($«protected»)
+      -- dbg_trace y
+      -- by rcases rawfield with ⟨⟩
+      -- return ⟨field.raw⟩ -- : Lean.TSyntax `Lean.Parser.Command.structExplicitBinder)
+  `(class $id $binders* $[$«extends»]? $[: $ty]? $[where $[$K]?$fields*]? $der)
+
+open Lean
+open Lean.Parser
+-- def classof            := leading_parser
+--   " of " >> sepBy1 termParser ", "
+
+-- def mixins            := leading_parser
+--   sepBy1 termParser ", "
+
+syntax mixins := term,*
+
+syntax (name := mathclass) "mathclass" declId
+  ppIndent((ppSpace bracketedBinder)* " of " mixins optType) : command
+  -- ((" := " <|> " where ") (structCtor)? structFields)? optDeriving  : command
+
+macro_rules | `(mathclass $id:declId $binders* of $mixins,* $[: $ty]?) => do
+  let K := none
+  let fields := none
+  -- let «extends» := classof.mapM (fun (c : TSyntax _) => match c with
+  --   | `(of $[$stuff] ) => _
+  -- )
+  `(class $id $binders* extends $mixins,* $[: $ty]? $[where $[$K]?$[$fields]*]?)
+  -- `(class $id $binders* $[$«extends»]? $[: $ty]? $[where])
 
 -- structFields =
 -- manyIndent <|
@@ -173,9 +205,9 @@ namespace pretend_hb
 
   mixin MulOfBottom (α : Type u) where
     /-- `a ⬝ b` computes the product of `a` and `b`. See `HMul`. -/
-    mul : α → α → α
-
-  class Mul (α : Type u) of MulOfBottom α
+    protected mul : α → α → α
+  -- #print MulOfBottom
+  mathclass Mul (α : Type u) of MulOfBottom α
   infixl:70 " ⬝ "   => mul
 
   -- macro_rules | `($x ⬝ $y)   => `(binop% Mul $x $y)
