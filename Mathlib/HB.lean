@@ -151,6 +151,13 @@ syntax (name := mixin) "mixin" declId
 -- macro_rules | `(mixin $id:declId $binders* $[$«extends»]? $[: $ty]? $[$ceorwhere $[$K]? $fields]? $der) => `(class $id $binders* $[$«extends»]? $[: $ty]? $[where $[$K]?$fields:structFields]? $der)
 
 macro_rules | `(mixin $id:declId $binders* $[$«extends»]? $[: $ty]? $[$ceorwhere $[$K]? $fields:structSimpleBinder*]? $der) => do
+  let fields ← fields.mapM fun fields =>
+    fields.mapM fun
+    | `(structSimpleBinder| $[$doc:docComment]? $[$attrs:attributes]? protected $_:ident $_:optDeclSig) => Lean.Macro.throwError "Unexpected protected field in mixin"
+    | `(structSimpleBinder| $[$doc:docComment]? $[$attrs:attributes]? private $_:ident $_:optDeclSig) => Lean.Macro.throwError "Unexpected private field in mixin"
+    | `(structSimpleBinder| $[$doc:docComment]? $[$attrs:attributes]? $id:ident $sig:optDeclSig) =>
+      `(structSimpleBinder| $[$doc:docComment]? $[$attrs:attributes]? protected $id:ident $sig:optDeclSig)
+    | _ => Lean.Macro.throwUnsupported
   -- let fields ← fields.mapM fun fields ↦ do
   --   fields.mapM fun field ↦ do
 
@@ -176,13 +183,36 @@ syntax (name := mathclass) "mathclass" declId
   ppIndent((ppSpace bracketedBinder)* " of " mixins optType) : command
   -- ((" := " <|> " where ") (structCtor)? structFields)? optDeriving  : command
 
-macro_rules | `(mathclass $id:declId $binders* of $mixins,* $[: $ty]?) => do
+initialize dummyExt :
+    PersistentEnvExtension Unit Unit Unit ←
+  registerPersistentEnvExtension {
+    mkInitial := pure ()
+    addImportedFn := fun _ => pure ()
+    addEntryFn := fun _ _ => ()
+    exportEntriesFn := fun _ => #[]
+  }
+
+open Elab.Command
+elab_rules : command | `(mathclass $id:declId $binders* of $mixins,* $[: $ty]?) => do
   let K := none
   let fields := none
   -- let «extends» := classof.mapM (fun (c : TSyntax _) => match c with
   --   | `(of $[$stuff] ) => _
   -- )
-  `(class $id $binders* extends $mixins,* $[: $ty]? $[where $[$K]?$[$fields]*]?)
+  let decls ← `(class $id $binders* extends $mixins,* $[: $ty]? $[where $[$K]?$[$fields]*]?
+    )
+  let env ← getEnv
+  dbg_trace dummyExt.getState env
+  elabCommand decls
+
+-- macro_rules | `(mathclass $id:declId $binders* of $mixins,* $[: $ty]?) => do
+--   let K := none
+--   let fields := none
+--   -- let «extends» := classof.mapM (fun (c : TSyntax _) => match c with
+--   --   | `(of $[$stuff] ) => _
+--   -- )
+--   `(class $id $binders* extends $mixins,* $[: $ty]? $[where $[$K]?$[$fields]*]?
+--     )
   -- `(class $id $binders* $[$«extends»]? $[: $ty]? $[where])
 
 -- structFields =
@@ -205,7 +235,7 @@ namespace pretend_hb
 
   mixin MulOfBottom (α : Type u) where
     /-- `a ⬝ b` computes the product of `a` and `b`. See `HMul`. -/
-    protected mul : α → α → α
+    mul : α → α → α
   -- #print MulOfBottom
   mathclass Mul (α : Type u) of MulOfBottom α
   infixl:70 " ⬝ "   => mul
